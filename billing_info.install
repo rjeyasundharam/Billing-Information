@@ -1,0 +1,29 @@
+<?php
+function billing_info_schema() {
+  $schema['billing_info'] = array(
+    'fields' => array(
+      'user_id'=>array(
+        'type'=>'serial',
+        'not null' => TRUE,
+      ),
+      'first_name'=>array(
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+      ),
+      'second_name'=>array(
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+      ),
+      'coupon'=>array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('user_id'),
+  );
+  return $schema;
+}
+?>

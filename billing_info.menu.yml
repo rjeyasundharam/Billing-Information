@@ -1,0 +1,3 @@
+billing_info.description:
+  title: Billing Info Block
+  route_name: billing_info.description

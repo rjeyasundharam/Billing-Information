@@ -1,0 +1,163 @@
+<?php
+namespace Drupal\billing_info\Form;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Database\Database;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+/**
+ * Class MydataForm.
+ *
+ * @package Drupal\mydata\Form
+ */
+class BillingInformationForm extends FormBase {
+/**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'billing_info_form';
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $conn = Database::getConnection();
+     $record = array();
+    if (isset($_GET['num'])) {
+        $query = $conn->select('billing_info', 'm')
+            ->condition('user_id', $_GET['num'])
+            ->fields('m');
+        $record = $query->execute()->fetchAssoc();
+    }
+
+    $form['coupon-container'] = [
+      '#type' => 'container',
+    ];
+
+    $form['coupon-container']['coupon-code'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Coupon Code:'),
+      '#required' => TRUE,
+    );
+
+    $form['coupon-container']['submit'] = [
+      '#type' => 'submit',
+      // The AJAX handler will call our callback, and will replace whatever page
+      // element has id box-container.
+      '#submit' => ['::submitCallback'],
+      '#ajax' => [
+        'callback' => '::promptCallback',
+        'wrapper' => 'bill-container',
+      ],
+      '#value' => $this->t('Save'),
+    ];
+
+    $form['bill_container'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'bill-container'],
+    ];
+   
+    $form['bill_container']['first_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('First Name'),
+      '#required' => TRUE,
+       //'#default_values' => array(array('id')),
+      '#default_value' => (isset($record['first_name']) && $_GET['num']) ? $record['first_name']:'',
+      );
+    $form['bill_container']['second_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Second Name'),
+      '#required' => TRUE,
+       //'#default_values' => array(array('id')),
+      '#default_value' => (isset($record['second_name']) && $_GET['num']) ? $record['second_name']:'',
+      );
+    $form['bill_container']['coupon'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Coupon'),
+      '#required' => TRUE,
+      '#attributes' => ['id' => 'bill-coupen-code'],
+       //'#default_values' => array(array('id')),
+      '#default_value' => (isset($record['coupon']) && $_GET['num']) ? $record['coupon']:'',
+      );
+    $form['bill_container']['submit'] = [
+        '#type' => 'submit',
+        '#value' => 'save',
+        //'#value' => t('Submit'),
+    ];
+
+    $value = $form_state->getValue('coupon-code');
+    if ($value == 'FIRST') {
+      $form['bill_container']['coupon']['#value'] = $value;
+    }
+    return $form;
+  }
+
+  /**
+    * {@inheritdoc}
+    */
+  public function promptCallback(array &$form, FormStateInterface $form_state) {
+     $form_state->setValue('coupon', $form_state->getValue('coupon-code'));
+    $form_state->setRebuild();
+    $elements=$form;
+    return $form;
+  }
+  
+  public function submitCallback(array $form, FormStateInterface $form_state) {
+    $form_state->setValue('coupon', $form_state->getValue('coupon-code'));
+    $form_state->setRebuild();
+    return $form;
+  }
+  
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+         $name = $form_state->getValue('first_name');
+          if(preg_match('/[^A-Za-z]/', $name)) {
+             $form_state->setErrorByName('first_name', $this->t('your name must in characters without space'));
+          }
+          if(preg_match('/[^A-Za-z]/', $name)) {
+             $form_state->setErrorByName('second_name', $this->t('your name must in characters without space'));
+          }
+    parent::validateForm($form, $form_state);
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $field=$form_state->getValues();
+    $first_name=$field['first_name'];
+    $second_name=$field['second_name'];
+    $coupon=$field['coupon'];
+    if (isset($_GET['num'])) {
+          $field  = array(
+              'first_name'   => $first_name,
+              'second_name'   => $second_name,
+              'coupon' => $coupon,
+          );
+          $query = \Drupal::database();
+          $query->update('billing_info')
+              ->fields($field)
+              ->condition('user_id', $_GET['num'])
+              ->execute();
+          drupal_set_message("Your Delivered within 3 days");
+          $form_state->setRedirect('billing_info.display_table_controller_display');
+      }
+       else
+       {
+            $field  = array(
+              'first_name'   => $second_name,
+              'second_name'   => $first_name,
+              'coupon' => $coupon,
+            );
+           $query = \Drupal::database();
+           $query ->insert('billing_info')
+               ->fields($field)
+               ->execute();
+           drupal_set_message("Your Delivered within 3 days");
+           $form_state->setRedirect('billing_info.display_table_controller_display');
+       }
+  }
+ 
+
+
+
+
+}
+?>

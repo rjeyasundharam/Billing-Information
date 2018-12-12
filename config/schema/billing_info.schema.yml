@@ -1,0 +1,7 @@
+block.settings.billing_info_text:
+  type: block_settings
+  label: 'Example configurable text block configuration'
+  mapping:
+    bill_information_block_settings:
+      type: text
+      label: 'Block contents'

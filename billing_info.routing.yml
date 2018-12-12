@@ -1,0 +1,48 @@
+billing_info.description:
+  path: '/billing_info'
+  defaults:
+    _controller: '\Drupal\billing_info\Controller\BillingInformationController::description'
+    _title: 'Billing Information'
+  requirements:
+    _permission: 'access content'
+
+billing_info.couponform:
+  path: '/billing_info/couponform'
+  defaults:
+    _form: '\Drupal\billing_info\Form\CouponForm'
+    _title: 'Demo Form'
+  requirements:
+    _permission: 'access content'
+
+billing_info.display_table_controller_display:
+  path: '/billing_info/table'
+  defaults:
+    _controller: '\Drupal\billing_info\Controller\DisplayTableController::display'
+    _title: 'Display'
+  requirements:
+    _permission: 'access content'
+
+billing_info.formdetails:
+  path: '/billing_info/formdata'
+  defaults:
+    _form: '\Drupal\billing_info\Form\BillingInformationForm'
+    _title: 'Bill Information Form'
+  requirements:
+    _access: 'TRUE'
+
+billing_info.display_bill_details:
+  path: '/billing_info/billdetail/{serverid}'
+  defaults:
+    _controller: '\Drupal\billing_info\Controller\BillController::display'
+    _title: 'Bill Details'
+  requirements:
+    _access: 'TRUE'
+
+billing_info.delete_form:
+  path: '/billing_info/delete/{cid}'
+  defaults:
+    _form: '\Drupal\billing_info\Form\DeleteForm'
+    _title: 'DeleteForm'
+  requirements:
+    _permission: 'access content'
+  
